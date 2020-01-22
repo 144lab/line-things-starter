@@ -22,50 +22,9 @@ window.onload = () => {
   initializeApp();
 };
 
-// ----------------- //
-// Handler functions //
-// ----------------- //
-
-function handlerToggleLed() {
-  ledState = !ledState;
-
-  uiToggleLedButton(ledState);
-  liffToggleDeviceLedState(ledState);
-}
-
 // ------------ //
 // UI functions //
 // ------------ //
-
-function uiToggleLedButton(state) {
-  const el = document.getElementById("btn-led-toggle");
-  el.innerText = state ? "Switch LED OFF" : "Switch LED ON";
-
-  if (state) {
-    el.classList.add("led-on");
-  } else {
-    el.classList.remove("led-on");
-  }
-}
-
-function uiCountPressButton() {
-  clickCount++;
-
-  const el = document.getElementById("click-count");
-  el.innerText = clickCount;
-}
-
-function uiToggleStateButton(pressed) {
-  const el = document.getElementById("btn-state");
-
-  if (pressed) {
-    el.classList.add("pressed");
-    el.innerText = "Pressed";
-  } else {
-    el.classList.remove("pressed");
-    el.innerText = "Released";
-  }
-}
 
 function uiToggleDeviceConnected(connected) {
   const elStatus = document.getElementById("status");
@@ -216,12 +175,6 @@ function liffConnectToDevice(device) {
           disconnectCallback
         );
 
-        // Reset LED state
-        ledState = false;
-        // Reset UI elements
-        uiToggleLedButton(false);
-        uiToggleStateButton(false);
-
         // Try to reconnect
         initializeLiff();
       };
@@ -284,6 +237,7 @@ function liffGetButtonStateCharacteristic(characteristic) {
   characteristic
     .startNotifications()
     .then(() => {
+      /*
       characteristic.addEventListener("characteristicvaluechanged", e => {
         const val = new Uint8Array(e.target.value.buffer)[0];
         if (val > 0) {
@@ -295,6 +249,7 @@ function liffGetButtonStateCharacteristic(characteristic) {
           uiCountPressButton();
         }
       });
+      */
     })
     .catch(error => {
       uiStatusError(makeErrorMsg(error), false);
@@ -304,9 +259,7 @@ function liffGetButtonStateCharacteristic(characteristic) {
 function liffToggleDeviceLedState(state) {
   // on: 0x01
   // off: 0x00
-  window.ledCharacteristic
-    .writeValue(state ? new Uint8Array([0x01]) : new Uint8Array([0x00]))
-    .catch(error => {
-      uiStatusError(makeErrorMsg(error), false);
-    });
+  window.ledCharacteristic.writeValue(new Uint8Array([0x01])).catch(error => {
+    uiStatusError(makeErrorMsg(error), false);
+  });
 }
